@@ -1,0 +1,129 @@
+problem name = Rush Hour
+
+types = [Cell, Vehicle]
+
+fluents = [
+  bool free_cell[fc=Cell]
+  bool is_car[vehicle=Vehicle]
+  bool is_truck[vehicle=Vehicle]
+  bool car_at[vehicle=Vehicle, cell_1=Cell, cell_2=Cell]
+  bool truck_at[vehicle=Vehicle, cell_1=Cell, cell_2=Cell, cell_3=Cell]
+  bool adj_3[c1=Cell, c2=Cell, c3=Cell]
+]
+
+actions = [
+  action move_forward_CAR(Vehicle v_forward_CAR, Cell c1_forward_CAR, Cell c2_forward_CAR, Cell c3_forward_CAR) {
+    preconditions = [
+      is_car(v_forward_CAR)
+      car_at(v_forward_CAR, c1_forward_CAR, c2_forward_CAR)
+      free_cell(c3_forward_CAR)
+      adj_3(c3_forward_CAR, c1_forward_CAR, c2_forward_CAR)
+    ]
+    effects = [
+      free_cell(c2_forward_CAR) := true
+      free_cell(c3_forward_CAR) := false
+      free_cell(c1_forward_CAR) := false
+      car_at(v_forward_CAR, c3_forward_CAR, c1_forward_CAR) := true
+      car_at(v_forward_CAR, c1_forward_CAR, c2_forward_CAR) := false
+    ]
+  }
+  action move_backward_CAR(Vehicle v_backward_CAR, Cell c1_backward_CAR, Cell c2_backward_CAR, Cell c3_backward_CAR) {
+    preconditions = [
+      is_car(v_backward_CAR)
+      car_at(v_backward_CAR, c1_backward_CAR, c2_backward_CAR)
+      free_cell(c3_backward_CAR)
+      adj_3(c1_backward_CAR, c2_backward_CAR, c3_backward_CAR)
+    ]
+    effects = [
+      free_cell(c1_backward_CAR) := true
+      free_cell(c2_backward_CAR) := false
+      free_cell(c3_backward_CAR) := false
+      car_at(v_backward_CAR, c2_backward_CAR, c3_backward_CAR) := true
+      car_at(v_backward_CAR, c1_backward_CAR, c2_backward_CAR) := false
+    ]
+  }
+  action move_forward_TRUCK(Vehicle v_forward_TRUCK, Cell c1_forward_TRUCK, Cell c2_forward_TRUCK, Cell c3_forward_TRUCK, Cell c4_forward_TRUCK) {
+    preconditions = [
+      is_truck(v_forward_TRUCK)
+      truck_at(v_forward_TRUCK, c1_forward_TRUCK, c2_forward_TRUCK, c3_forward_TRUCK)
+      free_cell(c4_forward_TRUCK)
+      adj_3(c4_forward_TRUCK, c1_forward_TRUCK, c2_forward_TRUCK)
+      adj_3(c1_forward_TRUCK, c2_forward_TRUCK, c3_forward_TRUCK)
+    ]
+    effects = [
+      free_cell(c3_forward_TRUCK) := true
+      free_cell(c4_forward_TRUCK) := false
+      free_cell(c1_forward_TRUCK) := false
+      free_cell(c2_forward_TRUCK) := false
+      truck_at(v_forward_TRUCK, c4_forward_TRUCK, c1_forward_TRUCK, c2_forward_TRUCK) := true
+      truck_at(v_forward_TRUCK, c1_forward_TRUCK, c2_forward_TRUCK, c3_forward_TRUCK) := false
+    ]
+  }
+  action move_backward_TRUCK(Vehicle v_backward_TRUCK, Cell c1_backward_TRUCK, Cell c2_backward_TRUCK, Cell c3_backward_TRUCK, Cell c4_backward_TRUCK) {
+    preconditions = [
+      is_truck(v_backward_TRUCK)
+      truck_at(v_backward_TRUCK, c1_backward_TRUCK, c2_backward_TRUCK, c3_backward_TRUCK)
+      free_cell(c4_backward_TRUCK)
+      adj_3(c1_backward_TRUCK, c2_backward_TRUCK, c3_backward_TRUCK)
+      adj_3(c2_backward_TRUCK, c3_backward_TRUCK, c4_backward_TRUCK)
+    ]
+    effects = [
+      free_cell(c1_backward_TRUCK) := true
+      free_cell(c2_backward_TRUCK) := false
+      free_cell(c3_backward_TRUCK) := false
+      free_cell(c4_backward_TRUCK) := false
+      truck_at(v_backward_TRUCK, c2_backward_TRUCK, c3_backward_TRUCK, c4_backward_TRUCK) := true
+      truck_at(v_backward_TRUCK, c1_backward_TRUCK, c2_backward_TRUCK, c3_backward_TRUCK) := false
+    ]
+  }
+]
+
+objects = [
+  Cell: [cell_11, cell_12, cell_13, cell_14, cell_15, cell_16, cell_21, ...., cell_66]
+  Vehicle: [vehicle_1, vehicle_2, vehicle_3, vehicle_4, vehicle_5, vehicle_6, vehicle_7, vehicle_8]
+]
+
+initial fluents default = [
+  bool free_cell[fc=Cell] := false
+  bool is_car[vehicle=Vehicle] := false
+  bool is_truck[vehicle=Vehicle] := false
+  bool car_at[vehicle=Vehicle, cell_1=Cell, cell_2=Cell] := false
+  bool truck_at[vehicle=Vehicle, cell_1=Cell, cell_2=Cell, cell_3=Cell] := false
+  bool adj_3[c1=Cell, c2=Cell, c3=Cell] := false
+]
+
+initial values = [
+  adj_3(cell_11, cell_21, cell_31) := true
+  adj_3(cell_31, cell_21, cell_11) := true
+  adj_3(cell_12, cell_22, cell_32) := true
+  adj_3(cell_32, cell_22, cell_12) := true
+  ...
+  adj_3(cell_65, cell_55, cell_45) := true
+  adj_3(cell_46, cell_56, cell_66) := true
+  adj_3(cell_66, cell_56, cell_46) := true
+  adj_3(cell_11, cell_12, cell_13) := true
+  adj_3(cell_13, cell_12, cell_11) := true
+  ...
+  adj_3(cell_63, cell_64, cell_65) := true
+  adj_3(cell_65, cell_64, cell_63) := true
+  adj_3(cell_64, cell_65, cell_66) := true
+  adj_3(cell_66, cell_65, cell_64) := true
+  car_at(vehicle_1, cell_12, cell_11) := true
+  is_car(vehicle_1) := true
+  car_at(vehicle_2, cell_14, cell_24) := true
+  is_car(vehicle_2) := true
+  ...
+  truck_at(vehicle_8, cell_34, cell_44, cell_54) := true
+  is_truck(vehicle_8) := true
+  free_cell(cell_13) := true
+  free_cell(cell_15) := true
+  free_cell(cell_16) := true
+  ...
+  free_cell(cell_64) := true
+  free_cell(cell_65) := true
+  free_cell(cell_66) := true
+]
+
+goals = [
+  car_at(vehicle_1, cell_16, cell_15)
+]
